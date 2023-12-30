@@ -1,6 +1,6 @@
 ---
 - name: Websetup
-  hosts: node-1
+  hosts: node-2
   become: yes
   tasks:
     - debug:
@@ -14,12 +14,6 @@
         state: present
       when: ansible_distribution == 'Ubuntu'
 
-    - name: start tomcat service
-      service:
-        name: tomcat9
-        state: started
-        enabled: yes
-
     - name: Cloning git repo
       git:
         repo: 'https://github.com/Amrish24-S/vprofile-project.git'
@@ -30,7 +24,7 @@
       shell:
         cmd: mvn install
         chdir: /tmp/vp/
-
+      
     - name: stop tomcat service
       service:
         name: tomcat9
@@ -47,10 +41,12 @@
         src: /tmp/vp/target/vprofile-v2.war
         dest: /var/lib/tomcat9/webapps/ROOT.war
         remote_src: yes
-
-    - name: start tomcat service
-      systemd:
-        name: tomcat9
-        state: started
-        enabled: yes
-                    
+      notify:
+        - start tomcat service
+                  
+  handlers:
+        - name: start tomcat service
+          service:
+            name: tomcat9
+            state: started
+            enabled: yes
