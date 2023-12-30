@@ -1,0 +1,56 @@
+---
+- name: Websetup
+  hosts: node-1
+  become: yes
+  tasks:
+    - debug:
+        msg: "The packages to be installed {{pack_ubuntu}}"
+
+    - name: Installing packages
+      loop: "{{pack_ubuntu}}"
+      apt:
+        update_cache: yes
+        name: "{{item}}"
+        state: present
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: start tomcat service
+      service:
+        name: tomcat9
+        state: started
+        enabled: yes
+
+    - name: Cloning git repo
+      git:
+        repo: 'https://github.com/Amrish24-S/vprofile-project.git'
+        dest: /tmp/vp
+        clone: yes
+
+    - name: mvn install.
+      shell:
+        cmd: mvn install
+        chdir: /tmp/vp/
+
+    - name: stop tomcat service
+      service:
+        name: tomcat9
+        state: stopped
+        enabled: yes
+
+    - name: Remove ROOT.war file
+      file:
+        path: /var/lib/tomcat9/webapps/ROOT
+        state: absent
+
+    - name: Copy artifacts
+      ansible.builtin.copy:
+        src: /tmp/vp/target/vprofile-v2.war
+        dest: /var/lib/tomcat9/webapps/ROOT.war
+        remote_src: yes
+
+    - name: start tomcat service
+      systemd:
+        name: tomcat9
+        state: started
+        enabled: yes
+                    
