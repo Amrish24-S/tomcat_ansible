@@ -1,0 +1,5 @@
+---
+# tasks file for tomcat
+- name: Checking OS and installing tomcat
+  include_tasks: tomcat_ubuntu.yaml
+  when: ansible_distribution == 'Ubuntu'

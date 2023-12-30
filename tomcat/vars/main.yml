@@ -1,0 +1,13 @@
+---
+# vars file for tomcat
+pack_ubuntu:
+- maven
+- openjdk-11-jdk
+- wget
+- zip
+- unzip
+- tomcat9
+- tomcat9-admin
+- tomcat9-docs
+- tomcat9-common
+- git 
